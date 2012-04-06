@@ -10,7 +10,7 @@
 @interface DGPagedViewController : UIViewController<UIScrollViewDelegate,DGScrollViewDelegate,DGScrollViewDataSource>{
 }
 @property (nonatomic,readonly) NSInteger currentPage;
-@property (nonatomic, readonly) DGScrollView* scrollView;
+@property (nonatomic,retain) DGScrollView* scrollView;
 @property (nonatomic) BOOL pageControlHidden;
 - (void) setPage:(NSUInteger)page animated:(BOOL) animated;
 - (void) reloadData;

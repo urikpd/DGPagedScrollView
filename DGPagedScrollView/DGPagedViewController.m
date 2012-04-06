@@ -43,11 +43,11 @@ typedef enum {
 #pragma mark - View lifecycle
 - (void)loadView{
     [super loadView];
-    DGScrollView* scroller = [[DGScrollView alloc] initWithFrame:self.view.frame];
-    scroller.delegate=self;
-    scroller.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-    self.view = scroller;
-    [scroller release];
+    self.scrollView=[[[DGScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)]autorelease];
+    self.scrollView.delegate=self;
+    self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    [self.view insertSubview:self.scrollView atIndex:0];
+
 }
 - (void)viewDidLoad
 {
@@ -67,11 +67,6 @@ typedef enum {
 - (void)dealloc {
     [scrollView release];
     [super dealloc];
-}
-
-#pragma mark - DGScrollView Help Methods
-- (DGScrollView *)scrollView {
-    return (DGScrollView*) self.view;
 }
 
 #pragma mark - UIScrollViewDelegate Methods
