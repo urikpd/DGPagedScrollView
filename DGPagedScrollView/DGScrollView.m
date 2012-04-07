@@ -15,9 +15,7 @@
 }
 @property (nonatomic) CGRect visibleFrame;
 @property (nonatomic) NSUInteger currentPage;
-@property (retain,nonatomic) UIPageControl* pageControl;
 - (UIView *)dummyViewWithFrame:(CGRect)frame;
-- (void) updatePageControlPosition;
 - (void) checkAndInsertPageAtIndex:(NSUInteger)index;
 - (void) changePage:(UIPageControl*) aPageControl;
 - (void) changePage:(UIPageControl*) aPageControl animated:(BOOL)animated;
@@ -30,7 +28,7 @@
 #pragma mark Subclass
 
 - (id)initWithFrame:(CGRect)frame {
-    visibleFrame=frame;
+    self.visibleFrame=frame;
     frame.size.width+=2*kSpaceBetweenPages;
     frame.origin.x-=kSpaceBetweenPages;
     if ((self = [super initWithFrame:frame])) {
@@ -41,14 +39,13 @@
         self.scrollsToTop = NO;
         //Page control
         self.currentPage=0;
-        CGRect frame = CGRectMake(self.contentOffset.x, 0, self.frame.size.width, kPageControlHeight);
-        UIPageControl* aPageControl = [[UIPageControl alloc] initWithFrame:frame];
-        [aPageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
-        aPageControl.defersCurrentPageDisplay = YES;
-        aPageControl.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin);
-        [self addSubview:aPageControl];
-        pageControl = aPageControl;  
-        self.pageControlHidden=NO;
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, kPageControlHeight);
+        self.pageControl = [[[UIPageControl alloc] initWithFrame:frame]autorelease];
+        DebugLog(@"pageControlFrame");
+        LogFrame(frame);
+        [self.pageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
+        self.pageControl.defersCurrentPageDisplay = YES;
+        self.pageControl.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin);
     }
     return self;
 }
@@ -101,7 +98,10 @@
     return [dummyView autorelease];
 }
 - (UIView *)pageAtIndex:(NSUInteger)index {
-    return (UIView *)[self.views objectAtIndex:index];
+    if([self.views count]>0)
+        return (UIView *)[self.views objectAtIndex:index];
+    else 
+        return nil;
 }
 - (void) emptyPages {
     for (UIView* view in self.views) {
@@ -144,6 +144,7 @@
     if(!self.pageControlHidden){
         NSInteger totalPages=[(id <DGScrollViewDataSource>)self.delegate numberOfPagesInPagedView:(id <DGScrollViewDelegate>)self.delegate];
         self.pageControl.numberOfPages = totalPages;
+        self.pageControl.currentPage = self.page; //Update the page number
     }
 }
 - (void) layoutSubviews {
@@ -174,16 +175,6 @@
         CGFloat heightInset = inset.top + inset.bottom;
         self.contentSize = CGSizeMake(self.frame.size.width * [self.views count], self.frame.size.height - heightInset);
     }
-    //Avoid that the pageControl move
-    [CATransaction begin];
-    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-    
-    CGRect frame = self.pageControl.frame;
-    frame.origin.x = self.contentOffset.x;
-    frame.origin.y = self.frame.size.height - 50 - self.scrollIndicatorInsets.bottom - self.scrollIndicatorInsets.top;
-    frame.size.width = self.frame.size.width;
-    self.pageControl.frame = frame;
-    [CATransaction commit];
 }
 
 #pragma mark -
@@ -202,7 +193,6 @@
 - (void) setContentOffset:(CGPoint) new {
     new.y = -self.scrollIndicatorInsets.top;
     [super setContentOffset:new];
-    self.pageControl.currentPage = self.page; //Update the page number
 }
 
 - (NSArray*) views {

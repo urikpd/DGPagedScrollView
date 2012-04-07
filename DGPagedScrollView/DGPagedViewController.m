@@ -6,6 +6,7 @@
 //
 
 #import "DGPagedViewController.h"
+#define kPageControlBottomMargin 55.0f
 typedef enum {
     DGScrollLeft=0,
     DGScrollRight
@@ -13,10 +14,12 @@ typedef enum {
 @interface DGPagedViewController(){
     
 }
+@property (retain,nonatomic) UIView *zoomedView;
 @property (nonatomic) NSInteger actualPage;
+//- (CGRect)centeredFrameForScrollView:(UIScrollView *)scroll andUIView:(UIView *)rView;
 @end
 @implementation DGPagedViewController
-@synthesize scrollView,currentPage,actualPage;
+@synthesize scrollView,currentPage,actualPage,zoomedView;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -46,8 +49,15 @@ typedef enum {
     self.scrollView=[[[DGScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)]autorelease];
     self.scrollView.delegate=self;
     self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    self.scrollView.minimumZoomScale = self.scrollView.frame.size.width / self.scrollView.frame.size.width;
+    self.scrollView.maximumZoomScale = 2.0;
+    [self.scrollView setZoomScale:self.scrollView.minimumZoomScale];
     [self.view insertSubview:self.scrollView atIndex:0];
-
+    UIPageControl* pageControl=self.scrollView.pageControl;
+    CGRect pageControlFrame=pageControl.frame;
+    pageControlFrame.origin.y=self.view.frame.size.height-pageControlFrame.size.height-kPageControlBottomMargin;
+    pageControl.frame=pageControlFrame;
+    [self.view insertSubview:pageControl atIndex:1];
 }
 - (void)viewDidLoad
 {
@@ -65,6 +75,7 @@ typedef enum {
 }
 
 - (void)dealloc {
+    [zoomedView release];
     [scrollView release];
     [super dealloc];
 }
@@ -74,6 +85,7 @@ typedef enum {
     static NSInteger previousPage = 0;
     NSInteger page=self.currentPage;
     if (previousPage != page && page>=0) {
+        [self.scrollView updatePageControlPosition];
         DGScrollDirection direction;
         if(previousPage<page){
             direction=DGScrollRight;
@@ -96,6 +108,33 @@ typedef enum {
         }
     }
 }
+/*
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+    return [self.scrollView pageAtIndex:self.currentPage];
+}
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView{
+    [self.scrollView pageAtIndex:self.currentPage].frame = [self centeredFrameForScrollView:self.scrollView andUIView:[self.scrollView pageAtIndex:self.currentPage]];
+}
+- (CGRect)centeredFrameForScrollView:(UIScrollView *)scroll andUIView:(UIView *)rView {
+    CGSize boundsSize = scroll.bounds.size;
+    CGRect frameToCenter = rView.frame;
+    // center horizontally
+    if (frameToCenter.size.width < boundsSize.width) {
+        frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
+    }
+    else {
+        frameToCenter.origin.x = 0;
+    }
+    // center vertically
+    if (frameToCenter.size.height < boundsSize.height) {
+        frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
+    }
+    else {
+        frameToCenter.origin.y = 0;
+    }
+    return frameToCenter;
+}
+ */
 - (NSInteger) currentPage{
     CGFloat pageWidth = self.scrollView.frame.size.width;
     float fractionalPage = self.scrollView.contentOffset.x / pageWidth;

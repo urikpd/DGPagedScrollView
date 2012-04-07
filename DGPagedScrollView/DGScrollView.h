@@ -13,7 +13,9 @@
 @property (nonatomic, assign) NSUInteger page; 
 @property (nonatomic, retain) NSArray* views;
 @property (nonatomic, retain) NSArray* contentViews;
+@property (retain,nonatomic) UIPageControl* pageControl;
 @property (nonatomic) BOOL pageControlHidden;
+- (void) updatePageControlPosition;
 - (void) setPage:(NSUInteger)page animated:(BOOL) animated;
 - (void) addPage:(UIView*) view;
 - (void) addPage:(UIView*) view atIndex:(NSUInteger) index;
