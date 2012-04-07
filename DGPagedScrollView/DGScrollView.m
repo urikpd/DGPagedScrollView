@@ -9,10 +9,11 @@
 #import <QuartzCore/CATransaction.h>
 
 #define kPageControlHeight 36.0f
-
+#define kSpaceBetweenPages 15
 @interface DGScrollView (){
 
 }
+@property (nonatomic) CGRect visibleFrame;
 @property (nonatomic) NSUInteger currentPage;
 @property (retain,nonatomic) UIPageControl* pageControl;
 - (UIView *)dummyViewWithFrame:(CGRect)frame;
@@ -23,12 +24,15 @@
 @end
 
 @implementation DGScrollView
-@synthesize views,contentViews,currentPage;
+@synthesize views,contentViews,currentPage,visibleFrame;
 @synthesize pageControl;
 #pragma mark -
 #pragma mark Subclass
 
 - (id)initWithFrame:(CGRect)frame {
+    visibleFrame=frame;
+    frame.size.width+=2*kSpaceBetweenPages;
+    frame.origin.x-=kSpaceBetweenPages;
     if ((self = [super initWithFrame:frame])) {
         self.delegate=nil;
         self.pagingEnabled = YES;
@@ -60,10 +64,11 @@
         id previousObject =[newViews objectAtIndex:index];
         [newViews removeObject:previousObject];
     }
-    CGRect frame=self.frame;
-    frame.origin.x=frame.origin.x + (index * frame.size.width);
+    CGRect frame=self.visibleFrame;
+    frame.origin.x+=(index * frame.size.width)+((index+1)*(2*kSpaceBetweenPages))-kSpaceBetweenPages;
     frame.origin.y=0;
     view.frame=frame;
+    LogFrame(frame);
     [newViews insertObject:view atIndex:index];
     self.views=[newViews autorelease];
     [self insertSubview:view belowSubview:self.pageControl];
