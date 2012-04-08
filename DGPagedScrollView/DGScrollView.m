@@ -41,8 +41,6 @@
         self.currentPage=0;
         CGRect frame = CGRectMake(0, 0, self.frame.size.width, kPageControlHeight);
         self.pageControl = [[[UIPageControl alloc] initWithFrame:frame]autorelease];
-        DebugLog(@"pageControlFrame");
-        LogFrame(frame);
         [self.pageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
         self.pageControl.defersCurrentPageDisplay = YES;
         self.pageControl.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin);
@@ -65,7 +63,6 @@
     frame.origin.x+=(index * frame.size.width)+((index+1)*(2*kSpaceBetweenPages))-kSpaceBetweenPages;
     frame.origin.y=0;
     view.frame=frame;
-    LogFrame(frame);
     [newViews insertObject:view atIndex:index];
     self.views=[newViews autorelease];
     [self insertSubview:view belowSubview:self.pageControl];
