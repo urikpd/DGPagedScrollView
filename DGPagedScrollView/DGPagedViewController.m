@@ -143,7 +143,8 @@ typedef enum {
 }
 #pragma mark - DGPagedViewController DataSource
 - (void)reloadData{
-   [self.scrollView layoutSubviews];
+    [self.scrollView emptyPages];
+    [self.scrollView layoutSubviews];
 }
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView{
     NSLog(@"%@ method must be implemented by the subclass",NSStringFromSelector(_cmd));
