@@ -10,6 +10,7 @@
 
 #define kPageControlHeight 36.0f
 #define kSpaceBetweenPages 15
+
 @interface DGScrollView (){
 
 }
@@ -23,14 +24,37 @@
 
 @implementation DGScrollView
 @synthesize views,contentViews,currentPage,visibleFrame;
-@synthesize pageControl;
+@synthesize pageControl, spaceBetweenPages;
 #pragma mark -
 #pragma mark Subclass
 
 - (id)initWithFrame:(CGRect)frame {
     self.visibleFrame=frame;
-    frame.size.width+=2*kSpaceBetweenPages;
-    frame.origin.x-=kSpaceBetweenPages;
+    self.spaceBetweenPages = kSpaceBetweenPages;
+    frame.size.width+=2*self.spaceBetweenPages;
+    frame.origin.x-=self.spaceBetweenPages;
+    if ((self = [super initWithFrame:frame])) {
+        self.delegate=nil;
+        self.pagingEnabled = YES;
+        self.showsVerticalScrollIndicator = NO;
+        self.showsHorizontalScrollIndicator = NO;
+        self.scrollsToTop = NO;
+        //Page control
+        self.currentPage=0;
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, kPageControlHeight);
+        self.pageControl = [[[UIPageControl alloc] initWithFrame:frame]autorelease];
+        [self.pageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
+        self.pageControl.defersCurrentPageDisplay = YES;
+        self.pageControl.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin);
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame andSpaceBetweenPages:(float)space {
+    self.visibleFrame=frame;
+    self.spaceBetweenPages = space;
+    frame.size.width+=2*self.spaceBetweenPages;
+    frame.origin.x-=self.spaceBetweenPages;
     if ((self = [super initWithFrame:frame])) {
         self.delegate=nil;
         self.pagingEnabled = YES;
@@ -54,15 +78,17 @@
 }
 - (void) addPage:(UIView *)view atIndex:(NSUInteger)index {
     [view retain];
+    LogFrame(view.frame);
     NSMutableArray *newViews=[self.views mutableCopy];
     if(index<[newViews count]){
         id previousObject =[newViews objectAtIndex:index];
         [newViews removeObject:previousObject];
     }
     CGRect frame=self.visibleFrame;
-    frame.origin.x+=(index * frame.size.width)+((index+1)*(2*kSpaceBetweenPages))-kSpaceBetweenPages;
+    frame.origin.x+=(index * frame.size.width)+((index+1)*(2*self.spaceBetweenPages))-self.spaceBetweenPages;
     frame.origin.y=0;
     view.frame=frame;
+    LogFrame(self.visibleFrame);
     [newViews insertObject:view atIndex:index];
     self.views=[newViews autorelease];
     [self insertSubview:view belowSubview:self.pageControl];

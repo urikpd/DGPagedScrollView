@@ -9,9 +9,12 @@
 #import "DGScrollView.h"
 @interface DGPagedViewController : UIViewController<UIScrollViewDelegate,DGScrollViewDelegate,DGScrollViewDataSource>{
 }
+@property (nonatomic) CGRect frame;
 @property (nonatomic,readonly) NSInteger currentPage;
 @property (nonatomic,retain) DGScrollView* scrollView;
 @property (nonatomic) BOOL pageControlHidden;
+@property (retain,nonatomic) UIPageControl* pageControl;
+
 - (void) setPage:(NSUInteger)page animated:(BOOL) animated;
 - (void) reloadData;
 //Data Source Methods
