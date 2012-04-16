@@ -7,6 +7,7 @@
 
 #import "DGPagedViewController.h"
 #define kPageControlBottomMargin 55.0f
+
 typedef enum {
     DGScrollLeft=0,
     DGScrollRight
@@ -19,7 +20,7 @@ typedef enum {
 //- (CGRect)centeredFrameForScrollView:(UIScrollView *)scroll andUIView:(UIView *)rView;
 @end
 @implementation DGPagedViewController
-@synthesize scrollView,currentPage,actualPage,zoomedView;
+@synthesize scrollView,currentPage,actualPage,zoomedView,frame, pageControl;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -46,17 +47,25 @@ typedef enum {
 #pragma mark - View lifecycle
 - (void)loadView{
     [super loadView];
-    self.scrollView=[[[DGScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)]autorelease];
+    CGRect viewFrame;
+    if(!CGRectEqualToRect(self.frame, CGRectNull) && !CGRectEqualToRect(self.frame, CGRectZero))
+        viewFrame=self.frame;
+    else
+        viewFrame=CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    self.view.frame=viewFrame;
+    viewFrame.origin.x=0;
+    viewFrame.origin.y=0;
+    self.scrollView=[[[DGScrollView alloc] initWithFrame:viewFrame andSpaceBetweenPages:2]autorelease];    
     self.scrollView.delegate=self;
     self.scrollView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
     self.scrollView.minimumZoomScale = self.scrollView.frame.size.width / self.scrollView.frame.size.width;
     self.scrollView.maximumZoomScale = 2.0;
     [self.scrollView setZoomScale:self.scrollView.minimumZoomScale];
     [self.view insertSubview:self.scrollView atIndex:0];
-    UIPageControl* pageControl=self.scrollView.pageControl;
-    CGRect pageControlFrame=pageControl.frame;
+    self.pageControl=self.scrollView.pageControl;
+    CGRect pageControlFrame=self.pageControl.frame;
     pageControlFrame.origin.y=self.view.frame.size.height-pageControlFrame.size.height-kPageControlBottomMargin;
-    pageControl.frame=pageControlFrame;
+    self.pageControl.frame=pageControlFrame;
     [self.view insertSubview:pageControl atIndex:1];
 }
 - (void)viewDidLoad
@@ -75,6 +84,7 @@ typedef enum {
 }
 
 - (void)dealloc {
+    [pageControl release];
     [zoomedView release];
     [scrollView release];
     [super dealloc];
