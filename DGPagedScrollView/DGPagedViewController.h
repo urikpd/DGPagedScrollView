@@ -17,6 +17,7 @@
 
 - (void) setPage:(NSUInteger)page animated:(BOOL) animated;
 - (void) reloadData;
+- (void)reloadDataWithAnimation:(BOOL)animated;
 //Data Source Methods
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView;
 - (UIView *)pagedView:(DGPagedViewController *)pagedView pageViewAtIndex:(NSUInteger)index;

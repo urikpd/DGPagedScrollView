@@ -156,6 +156,20 @@ typedef enum {
     [self.scrollView emptyPages];
     [self.scrollView layoutSubviews];
 }
+
+- (void)reloadDataWithAnimation:(BOOL)animated {
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        self.scrollView.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            [self reloadData];
+            [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                self.scrollView.alpha = 1.0f;
+            } completion:NULL];
+        }
+    }];
+    
+}
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView{
     NSLog(@"%@ method must be implemented by the subclass",NSStringFromSelector(_cmd));
     [self doesNotRecognizeSelector:_cmd];

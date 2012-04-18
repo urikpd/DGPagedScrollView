@@ -132,6 +132,7 @@
             [view removeFromSuperview];
     }
     self.views=nil;
+    [self setContentOffset:CGPointZero animated:NO];
     [self setNeedsLayout];
 }
 
