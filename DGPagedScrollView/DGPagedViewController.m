@@ -12,6 +12,7 @@ typedef enum {
     DGScrollLeft=0,
     DGScrollRight
 }DGScrollDirection;
+
 @interface DGPagedViewController(){
     
 }
@@ -155,6 +156,36 @@ typedef enum {
 - (void)reloadData{
     [self.scrollView emptyPages];
     [self.scrollView layoutSubviews];
+}
+
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation {
+    [self reloadDataWithAnimation:animation withDuration:0.3];
+}
+
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation withDuration:(float)duration {
+    
+    switch (animation) {
+        case DGScrollViewReloadDataAnimationNone:
+            [self reloadData];
+            break;
+        case DGScrollViewReloadDataAnimationFadeOutIn:
+            [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                self.scrollView.alpha = 0.0f;
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    [self reloadData];
+                    [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                        self.scrollView.alpha = 1.0f;
+                    } completion:NULL];
+                }
+            }];
+            break;
+            
+        default:
+            break;
+    }
+    
+    
 }
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView{
     NSLog(@"%@ method must be implemented by the subclass",NSStringFromSelector(_cmd));
