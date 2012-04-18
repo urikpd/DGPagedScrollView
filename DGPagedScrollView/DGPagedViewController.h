@@ -7,6 +7,12 @@
 
 #import <UIKit/UIKit.h>
 #import "DGScrollView.h"
+
+typedef enum {
+    DGScrollViewReloadDataAnimationNone=0,
+    DGScrollViewReloadDataAnimationFadeOutIn
+}DGScrollViewReloadDataAnimation;
+
 @interface DGPagedViewController : UIViewController<UIScrollViewDelegate,DGScrollViewDelegate,DGScrollViewDataSource>{
 }
 @property (nonatomic) CGRect frame;
@@ -17,7 +23,8 @@
 
 - (void) setPage:(NSUInteger)page animated:(BOOL) animated;
 - (void) reloadData;
-- (void)reloadDataWithAnimation:(BOOL)animated;
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation;
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation withDuration:(float)duration;
 //Data Source Methods
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView;
 - (UIView *)pagedView:(DGPagedViewController *)pagedView pageViewAtIndex:(NSUInteger)index;

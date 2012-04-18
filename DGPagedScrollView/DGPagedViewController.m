@@ -12,6 +12,7 @@ typedef enum {
     DGScrollLeft=0,
     DGScrollRight
 }DGScrollDirection;
+
 @interface DGPagedViewController(){
     
 }
@@ -157,17 +158,33 @@ typedef enum {
     [self.scrollView layoutSubviews];
 }
 
-- (void)reloadDataWithAnimation:(BOOL)animated {
-    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        self.scrollView.alpha = 0.0f;
-    } completion:^(BOOL finished) {
-        if (finished) {
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation {
+    [self reloadDataWithAnimation:animation withDuration:0.3];
+}
+
+- (void)reloadDataWithAnimation:(DGScrollViewReloadDataAnimation)animation withDuration:(float)duration {
+    
+    switch (animation) {
+        case DGScrollViewReloadDataAnimationNone:
             [self reloadData];
-            [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-                self.scrollView.alpha = 1.0f;
-            } completion:NULL];
-        }
-    }];
+            break;
+        case DGScrollViewReloadDataAnimationFadeOutIn:
+            [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                self.scrollView.alpha = 0.0f;
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    [self reloadData];
+                    [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                        self.scrollView.alpha = 1.0f;
+                    } completion:NULL];
+                }
+            }];
+            break;
+            
+        default:
+            break;
+    }
+    
     
 }
 - (NSInteger)numberOfPagesInPagedView:(DGPagedViewController *)pagedView{
