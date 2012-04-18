@@ -7,6 +7,10 @@ DGPagedScrollView also handles memory allocation and uses only three UIViews wit
 
 improvements, documentation, demo, and more to come…
 
+## Credits
+
+Thanks to [Rubén Mendez](https://masterbranch.com/caldofran). He made awesome contributions and bugfixes to the project.
+
 ## License
 
 Copyright 2010 Daniel García (fillito@fillito.com)
