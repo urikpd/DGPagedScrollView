@@ -17,7 +17,7 @@
 @property (nonatomic) CGRect visibleFrame;
 @property (nonatomic) NSUInteger currentPage;
 - (UIView *)dummyViewWithFrame:(CGRect)frame;
-- (void) checkAndInsertPageAtIndex:(NSUInteger)index;
+- (void) checkAndInsertPageAtIndex:(NSUInteger)index withPageOffset:(float)pageOffset;
 - (void) changePage:(UIPageControl*) aPageControl;
 - (void) changePage:(UIPageControl*) aPageControl animated:(BOOL)animated;
 @end
@@ -78,7 +78,6 @@
 }
 - (void) addPage:(UIView *)view atIndex:(NSUInteger)index {
     [view retain];
-    LogFrame(view.frame);
     NSMutableArray *newViews=[self.views mutableCopy];
     if(index<[newViews count]){
         id previousObject =[newViews objectAtIndex:index];
@@ -88,7 +87,6 @@
     frame.origin.x+=(index * frame.size.width)+((index+1)*(2*self.spaceBetweenPages))-self.spaceBetweenPages;
     frame.origin.y=0;
     view.frame=frame;
-    LogFrame(self.visibleFrame);
     [newViews insertObject:view atIndex:index];
     self.views=[newViews autorelease];
     [self insertSubview:view belowSubview:self.pageControl];
@@ -152,15 +150,28 @@
 - (void)setPageControlHidden:(BOOL)pageControlHidden{
     self.pageControl.hidden=pageControlHidden;
 }
-- (void) checkAndInsertPageAtIndex:(NSUInteger)index{
-    UIView *viewToShow=nil;
-    if(index<[self.views count]){
+- (void) checkAndInsertPageAtIndex:(NSUInteger)index withPageOffset:(float)pageOffset{
+    NSInteger totalPages=[(id <DGScrollViewDataSource>)self.delegate numberOfPagesInPagedView:(id <DGScrollViewDelegate>)self.delegate];
+    UIView *viewToShow;
+    viewToShow=nil;
+    if(index<self.views.count){
         viewToShow=[self pageAtIndex:index];
         if(viewToShow.tag==1){
             viewToShow=nil;
         }
     }
-    if(viewToShow==nil){
+    if(viewToShow==nil && index<totalPages && pageOffset==0.0f){
+        [self addPage:[(id <DGScrollViewDataSource>)self.delegate pagedView:(id <DGScrollViewDelegate>)self.delegate pageViewAtIndex:index] atIndex:index];
+    }
+    index++;
+    viewToShow=nil;
+    if(index<self.views.count){
+        viewToShow=[self pageAtIndex:index];
+        if(viewToShow.tag==1){
+            viewToShow=nil;
+        }
+    }
+    if(viewToShow==nil && index<totalPages && pageOffset==0.0f){
         [self addPage:[(id <DGScrollViewDataSource>)self.delegate pagedView:(id <DGScrollViewDelegate>)self.delegate pageViewAtIndex:index] atIndex:index];
     }
 }
@@ -188,17 +199,18 @@
     }
     NSInteger totalPages=[(id <DGScrollViewDataSource>)self.delegate numberOfPagesInPagedView:(id <DGScrollViewDelegate>)self.delegate];
     if(totalPages>0 && appearingPage>=0 && appearingPage<totalPages){
-        [self checkAndInsertPageAtIndex:appearingPage];
+        [self checkAndInsertPageAtIndex:appearingPage withPageOffset:(fractionalPage-((int)fractionalPage))];
         if(actualPage<=appearingPage && (appearingPage+1)<totalPages){
-            [self checkAndInsertPageAtIndex:(appearingPage+1)];
+            [self checkAndInsertPageAtIndex:(appearingPage+1) withPageOffset:(fractionalPage-((int)fractionalPage))];
         }
         if(actualPage>appearingPage && (appearingPage-1)>=0){
-            [self checkAndInsertPageAtIndex:(appearingPage-1)];
+            [self checkAndInsertPageAtIndex:(appearingPage-1) withPageOffset:(fractionalPage-((int)fractionalPage))];
         }
         UIEdgeInsets inset = self.scrollIndicatorInsets;
         CGFloat heightInset = inset.top + inset.bottom;
         self.contentSize = CGSizeMake(self.frame.size.width * [self.views count], self.frame.size.height - heightInset);
     }
+    //NSLog(@"%@",self.views);
 }
 
 #pragma mark -
@@ -254,7 +266,7 @@
     self.contentSize = CGSizeMake(self.frame.size.width * [self.views count], self.frame.size.height - heightInset);
     self.currentPage=page;
     if(page>0)
-        [self checkAndInsertPageAtIndex:(page-1)];
+        [self checkAndInsertPageAtIndex:(page-1) withPageOffset:0.0];
     [self layoutSubviews];
     [self setContentOffset:CGPointMake(page * self.frame.size.width, - self.scrollIndicatorInsets.top) animated:animated];
 }
