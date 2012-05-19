@@ -107,7 +107,7 @@ typedef enum {
         self.actualPage=page;
         NSInteger totalPages = [self numberOfPagesInPagedView:self];
         if(direction==DGScrollRight){
-            NSInteger indexToFree=page-2;
+            NSInteger indexToFree=page-3;
             if(indexToFree>=0){
                 [self.scrollView removePageAtIndex:indexToFree];
             }

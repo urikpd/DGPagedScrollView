@@ -17,7 +17,7 @@
 @property (nonatomic) CGRect visibleFrame;
 @property (nonatomic) NSUInteger currentPage;
 - (UIView *)dummyViewWithFrame:(CGRect)frame;
-- (void) checkAndInsertPageAtIndex:(NSUInteger)index withPageOffset:(float)pageOffset;
+- (void) checkAndInsertPageAtIndex:(NSInteger)index withPageOffset:(float)pageOffset;
 - (void) changePage:(UIPageControl*) aPageControl;
 - (void) changePage:(UIPageControl*) aPageControl animated:(BOOL)animated;
 @end
@@ -150,28 +150,17 @@
 - (void)setPageControlHidden:(BOOL)pageControlHidden{
     self.pageControl.hidden=pageControlHidden;
 }
-- (void) checkAndInsertPageAtIndex:(NSUInteger)index withPageOffset:(float)pageOffset{
+- (void) checkAndInsertPageAtIndex:(NSInteger)index withPageOffset:(float)pageOffset{
     NSInteger totalPages=[(id <DGScrollViewDataSource>)self.delegate numberOfPagesInPagedView:(id <DGScrollViewDelegate>)self.delegate];
     UIView *viewToShow;
     viewToShow=nil;
-    if(index<self.views.count){
+    if(index>=0 && index<self.views.count){
         viewToShow=[self pageAtIndex:index];
         if(viewToShow.tag==1){
             viewToShow=nil;
         }
     }
-    if(viewToShow==nil && index<totalPages && pageOffset==0.0f){
-        [self addPage:[(id <DGScrollViewDataSource>)self.delegate pagedView:(id <DGScrollViewDelegate>)self.delegate pageViewAtIndex:index] atIndex:index];
-    }
-    index++;
-    viewToShow=nil;
-    if(index<self.views.count){
-        viewToShow=[self pageAtIndex:index];
-        if(viewToShow.tag==1){
-            viewToShow=nil;
-        }
-    }
-    if(viewToShow==nil && index<totalPages && pageOffset==0.0f){
+    if(viewToShow==nil && index>=0 && index<totalPages && pageOffset==0.0f){
         [self addPage:[(id <DGScrollViewDataSource>)self.delegate pagedView:(id <DGScrollViewDelegate>)self.delegate pageViewAtIndex:index] atIndex:index];
     }
 }
